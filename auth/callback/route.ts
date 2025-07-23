@@ -1,1 +1,0 @@
-{/* OAUTH CALLBACK ROUTE */}
