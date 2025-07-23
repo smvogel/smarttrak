@@ -79,9 +79,10 @@ export default function LandingPage() {
               <a href="#features" className="text-gray-600 hover:text-gray-900 transition duration-200">Features</a>
               <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 transition duration-200">How it Works</a>
               <a href="#testimonials" className="text-gray-600 hover:text-gray-900 transition duration-200">Testimonials</a>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+              <a href="/auth" className="text-gray-600 hover:text-gray-900 transition duration-200">Sign In</a>
+              <a href="/auth" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
                 Get Started
-              </button>
+              </a>
             </div>
 
             <div className="md:hidden">
@@ -101,9 +102,10 @@ export default function LandingPage() {
                 <a href="#features" className="text-gray-600 hover:text-gray-900 py-2">Features</a>
                 <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 py-2">How it Works</a>
                 <a href="#testimonials" className="text-gray-600 hover:text-gray-900 py-2">Testimonials</a>
-                <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200 mt-2">
+                <a href="/auth" className="text-gray-600 hover:text-gray-900 py-2">Sign In</a>
+                <a href="/auth" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200 mt-2 text-center">
                   Get Started
-                </button>
+                </a>
               </div>
             </div>
           )}
@@ -123,9 +125,9 @@ export default function LandingPage() {
               Replace paperwork chaos with a professional digital workflow. Track every service request from intake to completion with our intuitive management system.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-blue-700 transform hover:scale-105 transition duration-200 shadow-lg">
+              <a href="/auth" className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-blue-700 transform hover:scale-105 transition duration-200 shadow-lg text-center">
                 Start Free Trial
-              </button>
+              </a>
               <button className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-50 transition duration-200">
                 Watch Demo
               </button>
@@ -234,9 +236,9 @@ export default function LandingPage() {
             Join hundreds of service businesses already using ServiceTracker Pro to streamline their operations.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-100 transform hover:scale-105 transition duration-200 shadow-lg">
+            <a href="/auth" className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-100 transform hover:scale-105 transition duration-200 shadow-lg text-center">
               Start Free 14-Day Trial
-            </button>
+            </a>
             <button className="border border-white text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white hover:text-blue-600 transition duration-200">
               Schedule Demo
             </button>
