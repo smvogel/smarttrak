@@ -243,6 +243,19 @@ export default function KanbanBoard() {
           <p className="text-gray-600">Drag and drop service tasks to update their status</p>
         </div>
 
+        {/* Stats Summary */}
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          {statuses.map(status => {
+            const count = tasks.filter(task => task.status === status.key).length;
+            return (
+              <div key={status.key} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
+                <div className="text-2xl font-bold text-gray-900">{count}</div>
+                <div className="text-sm text-gray-600">{status.label}</div>
+              </div>
+            );
+          })}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {statuses.map(status => {
             const statusTasks = tasks.filter(task => task.status === status.key);
@@ -281,6 +294,7 @@ export default function KanbanBoard() {
           })}
         </div>
 
+
         {/* Quick Actions */}
         <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
@@ -312,18 +326,7 @@ export default function KanbanBoard() {
           </div>
         </div>
 
-        {/* Stats Summary */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
-          {statuses.map(status => {
-            const count = tasks.filter(task => task.status === status.key).length;
-            return (
-              <div key={status.key} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
-                <div className="text-2xl font-bold text-gray-900">{count}</div>
-                <div className="text-sm text-gray-600">{status.label}</div>
-              </div>
-            );
-          })}
-        </div>
+        
 
         {/* Edit Modal */}
         {isEditModalOpen && (
