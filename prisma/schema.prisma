@@ -24,7 +24,7 @@ model User {
   email     String   @unique
   name      String?
   avatar    String?
-  role      UserRole @default(TECHNICIAN)
+  role      UserRole @default(EMPLOYEE)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -46,6 +46,7 @@ enum UserRole {
   ADMIN
   MANAGER
   TECHNICIAN
+  EMPLOYEE      // Basic access role for new signups
   FRONT_DESK
 }
 
