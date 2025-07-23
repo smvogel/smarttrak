@@ -352,7 +352,7 @@ export default function KanbanBoard() {
                         type="text"
                         value={editFormData.customerName || ''}
                         onChange={(e) => handleEditInputChange('customerName', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       />
                     </div>
 
@@ -362,7 +362,7 @@ export default function KanbanBoard() {
                         type="tel"
                         value={editFormData.phone || ''}
                         onChange={(e) => handleEditInputChange('phone', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       />
                     </div>
 
@@ -372,7 +372,7 @@ export default function KanbanBoard() {
                         type="email"
                         value={editFormData.email || ''}
                         onChange={(e) => handleEditInputChange('email', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       />
                     </div>
                   </div>
@@ -388,7 +388,7 @@ export default function KanbanBoard() {
                         type="text"
                         value={editFormData.bikeModel || ''}
                         onChange={(e) => handleEditInputChange('bikeModel', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       />
                     </div>
 
@@ -398,7 +398,7 @@ export default function KanbanBoard() {
                         type="text"
                         value={editFormData.serialNumber || ''}
                         onChange={(e) => handleEditInputChange('serialNumber', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       />
                     </div>
                   </div>
@@ -413,7 +413,7 @@ export default function KanbanBoard() {
                       <select
                         value={editFormData.serviceType || ''}
                         onChange={(e) => handleEditInputChange('serviceType', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       >
                         <option value="">Select a service type</option>
                         <option value="Basic Tune-Up">Basic Tune-Up</option>
@@ -434,7 +434,7 @@ export default function KanbanBoard() {
                         value={editFormData.notes || ''}
                         onChange={(e) => handleEditInputChange('notes', e.target.value)}
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                         placeholder="Enter any additional notes about the service request..."
                       />
                     </div>
