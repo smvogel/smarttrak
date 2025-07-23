@@ -14,18 +14,353 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User?   @relation(fields: [authorId], references: [id])
-  authorId  Int?
-}
+
+// ============================================================================
+// USER MANAGEMENT
+// ============================================================================
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  role      UserRole @default(TECHNICIAN)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Supabase Auth integration
+  supabaseId String? @unique
+
+  // Relations
+  createdTasks    ServiceTask[] @relation("TaskCreatedBy")
+  assignedTasks   ServiceTask[] @relation("TaskAssignedTo")
+  statusUpdates   StatusUpdate[]
+  activityLogs    ActivityLog[]
+  printedLabels   PrintedLabel[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  TECHNICIAN
+  FRONT_DESK
+}
+
+// ============================================================================
+// CORE SERVICE TRACKING
+// ============================================================================
+
+model ServiceTask {
+  id             String      @id @default(uuid())
+  
+  // Customer Information
+  customerName   String
+  email          String
+  phone          String
+  
+  // Item Information
+  itemModel      String?
+  serialNumber   String?
+  itemCondition  String?     // "Good", "Fair", "Poor", etc.
+  
+  // Service Information
+  serviceType    ServiceType
+  customService  String?     // For "Other" service types
+  description    String?     // Initial problem description
+  notes          String?     // Internal notes
+  estimatedCost  Decimal?    @db.Decimal(10, 2)
+  actualCost     Decimal?    @db.Decimal(10, 2)
+  
+  // Status and Workflow
+  status         TaskStatus  @default(FUTURE)
+  priority       Priority    @default(NORMAL)
+  
+  // Timestamps
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  estimatedCompletion DateTime?
+  actualCompletion    DateTime?
+  
+  // Relations
+  createdBy      User        @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  createdById    String
+  assignedTo     User?       @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+  assignedToId   String?
+  
+  statusUpdates  StatusUpdate[]
+  activityLogs   ActivityLog[]
+  printedLabels  PrintedLabel[]
+  attachments    Attachment[]
+
+  @@map("service_tasks")
+  @@index([status])
+  @@index([createdAt])
+  @@index([customerName])
+  @@index([email])
+  @@index([phone])
+}
+
+enum TaskStatus {
+  FUTURE      // Scheduled for future
+  IN_SHOP     // Item received, waiting to start
+  IN_PROGRESS // Currently being worked on
+  COMPLETED   // Work finished, ready for pickup
+  CLOSED      // Customer picked up and paid
+  CANCELLED   // Service cancelled
+  ON_HOLD     // Waiting for parts/customer approval
+}
+
+enum ServiceType {
+  BASIC_TUNE_UP
+  FULL_SERVICE
+  BRAKE_ADJUSTMENT
+  GEAR_ADJUSTMENT
+  WHEEL_TRUE
+  CHAIN_CASSETTE_REPLACEMENT
+  FLAT_TIRE_REPAIR
+  CUSTOM_BUILD
+  DIAGNOSTIC
+  WARRANTY_WORK
+  OTHER
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+// ============================================================================
+// ACTIVITY TRACKING
+// ============================================================================
+
+model StatusUpdate {
+  id          String     @id @default(uuid())
+  taskId      String
+  fromStatus  TaskStatus?
+  toStatus    TaskStatus
+  notes       String?
+  updatedBy   User       @relation(fields: [updatedById], references: [id])
+  updatedById String
+  createdAt   DateTime   @default(now())
+
+  task        ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("status_updates")
+  @@index([taskId])
+  @@index([createdAt])
+}
+
+model ActivityLog {
+  id          String      @id @default(uuid())
+  taskId      String
+  action      LogAction
+  description String
+  metadata    Json?       // Additional data as JSON
+  performedBy User        @relation(fields: [performedById], references: [id])
+  performedById String
+  createdAt   DateTime    @default(now())
+
+  task        ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+  @@index([taskId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+enum LogAction {
+  TASK_CREATED
+  TASK_UPDATED
+  STATUS_CHANGED
+  ASSIGNED
+  UNASSIGNED
+  NOTE_ADDED
+  COST_UPDATED
+  LABEL_PRINTED
+  EMAIL_SENT
+  SMS_SENT
+  ATTACHMENT_ADDED
+  ATTACHMENT_REMOVED
+}
+
+// ============================================================================
+// LABEL PRINTING
+// ============================================================================
+
+model PrintedLabel {
+  id          String      @id @default(uuid())
+  taskId      String
+  labelType   LabelType   @default(SERVICE_TAG)
+  printedBy   User        @relation(fields: [printedById], references: [id])
+  printedById String
+  printerName String?
+  success     Boolean     @default(true)
+  errorMsg    String?
+  createdAt   DateTime    @default(now())
+
+  task        ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("printed_labels")
+  @@index([taskId])
+  @@index([createdAt])
+}
+
+enum LabelType {
+  SERVICE_TAG
+  CUSTOMER_RECEIPT
+  INTERNAL_TAG
+}
+
+// ============================================================================
+// ATTACHMENTS & FILES
+// ============================================================================
+
+model Attachment {
+  id          String      @id @default(uuid())
+  taskId      String
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  url         String
+  uploadedBy  String      // User ID
+  createdAt   DateTime    @default(now())
+
+  task        ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+  @@index([taskId])
+}
+
+// ============================================================================
+// BUSINESS ANALYTICS
+// ============================================================================
+
+model DailyMetrics {
+  id              String   @id @default(uuid())
+  date            DateTime @unique @db.Date
+  
+  // Task counts
+  tasksCreated    Int      @default(0)
+  tasksCompleted  Int      @default(0)
+  tasksCancelled  Int      @default(0)
+  
+  // Financial metrics
+  totalRevenue    Decimal? @db.Decimal(10, 2)
+  avgServiceCost  Decimal? @db.Decimal(10, 2)
+  
+  // Performance metrics
+  avgTurnaroundHours Float?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("daily_metrics")
+  @@index([date])
+}
+
+// ============================================================================
+// SYSTEM CONFIGURATION
+// ============================================================================
+
+model SystemSettings {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+  type  SettingType @default(STRING)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+enum SettingType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+// ============================================================================
+// CUSTOMER MANAGEMENT (Future Feature)
+// ============================================================================
+
+model Customer {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  phone        String
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?
+  
+  // Preferences
+  notifications Boolean  @default(true)
+  preferredContact String? // "email", "sms", "phone"
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastService  DateTime?
+
+  // Relations - you can link this to ServiceTask later
+  // serviceTasks ServiceTask[]
+
+  @@map("customers")
+  @@index([email])
+  @@index([phone])
+}
+
+// ============================================================================
+// NOTIFICATION SYSTEM (Future Feature)
+// ============================================================================
+
+model NotificationTemplate {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  type        NotificationType
+  subject     String?          // For email
+  message     String
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("notification_templates")
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  PUSH
+}
+
+model SentNotification {
+  id         String           @id @default(uuid())
+  taskId     String?
+  type       NotificationType
+  recipient  String           // Email or phone number
+  subject    String?
+  message    String
+  status     NotificationStatus @default(PENDING)
+  sentAt     DateTime?
+  createdAt  DateTime         @default(now())
+
+  @@map("sent_notifications")
+  @@index([taskId])
+  @@index([createdAt])
+  @@index([status])
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
 }
