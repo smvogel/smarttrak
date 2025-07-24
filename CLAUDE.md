@@ -40,7 +40,7 @@ npm run lint
 **Authentication Flow:**
 - Supabase Auth with email/password and OAuth
 - SSR configuration via `/utils/supabase/server.ts`
-- Middleware handles session refresh at `/middleware.ts`
+- Middleware handles session refresh at `/middlewareTEMP.ts`
 - Auth actions in `/app/auth/actions.ts`
 - Protected routes via middleware matcher
 
