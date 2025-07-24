@@ -3,8 +3,7 @@
 import Script from 'next/script'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { signInWithGoogleOneTap } from '@/app/auth/actions' // Adjust the import path as necessary
-import type { CredentialResponse } from 'google.accounts.id' 
+
 
 declare const google: { accounts: any }
 
