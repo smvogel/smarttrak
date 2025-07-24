@@ -6,7 +6,7 @@ import { createClient } from '@/utils/supabase/server'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
-  
+
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
@@ -42,7 +42,7 @@ export async function signup(formData: FormData) {
 
 export async function signInWithGoogle() {
   const supabase = await createClient()
-  
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -59,17 +59,15 @@ export async function signInWithGoogle() {
   }
 }
 
-// New action for Google One Tap authentication
 export async function signInWithGoogleOneTap(credential: string, nonce?: string) {
   const supabase = await createClient()
-  
+
   try {
     const options: { provider: 'google'; token: string; nonce?: string } = {
       provider: 'google',
       token: credential,
     }
 
-    // Include nonce if provided for extra security
     if (nonce) {
       options.nonce = nonce
     }
