@@ -59,12 +59,13 @@ export function LoginForm({
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
+              <div className="grid gap-2 ">
                 <Label htmlFor="email">Email</Label>
                 <Input
+                  className="placeholder:text-gray-500"
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="email@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -89,7 +90,7 @@ export function LoginForm({
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full border-blue-500" disabled={isLoading}>
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
             </div>
