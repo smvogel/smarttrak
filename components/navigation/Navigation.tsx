@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import {LogoutButton} from "@/components/logout-button";
+import {UserDropdownMenu} from "@/components/UserDropdownMenu";
 
 interface NavigationProps {
   user: User | null;
@@ -17,7 +18,9 @@ export default function MainNavigation({ user }: NavigationProps) {
     { name: 'Home', href: '/', icon: '🏠' },
     { name: 'Dashboard', href: '/protected/dashboard', icon: '📋' },
     { name: 'New Service', href: '/protected/intake', icon: '➕' },
-    { name: 'Reports', href: '/protected/reports', icon: '📊' }
+    { name: 'Reports', href: '/protected/reports', icon: '📊' },
+    { name: 'Profile', href: '/protected/profile', icon: '👤' },
+    { name: 'Settings', href: '/protected/settings', icon: '⚙️' }
   ];
 
   const isActive = (href: string) => {
@@ -40,7 +43,7 @@ export default function MainNavigation({ user }: NavigationProps) {
 
     const initials = name
         .split(' ')
-        .map((n: string) => n[0])
+        .map((n: string) => n[0])  // Fixed: Added type annotation
         .join('')
         .toUpperCase()
         .slice(0, 2);
@@ -103,14 +106,18 @@ export default function MainNavigation({ user }: NavigationProps) {
                   <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs"></span>
                 </button>
 
-                <div className="relative">
-                  <button className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span className="sr-only">Open user menu</span>
-                    <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium">
-                      {initials}
+                {user ? (
+                    <UserDropdownMenu user={user} />
+                ) : (
+                    <div className="relative">
+                      <button className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span className="sr-only">Open user menu</span>
+                        <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium">
+                          U
+                        </div>
+                      </button>
                     </div>
-                  </button>
-                </div>
+                )}
 
                 {/* Desktop Logout Button */}
                 <LogoutButton
