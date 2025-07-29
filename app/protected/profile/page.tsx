@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
+import { Separator } from '@/components/ui/separator';
 import { User, Mail, Calendar, Shield, Edit2, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -181,7 +181,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
@@ -213,7 +213,7 @@ export default function ProfilePage() {
                 {/* Profile Card */}
                 <Card className="lg:col-span-1">
                     <CardHeader>
-                        <CardTitle className={"text-black"}>Profile Picture</CardTitle>
+                        <CardTitle>Profile Picture</CardTitle>
                     </CardHeader>
                     <CardContent className="text-center">
                         <Avatar className="w-24 h-24 mx-auto mb-4">
@@ -251,8 +251,8 @@ export default function ProfilePage() {
                 {/* Profile Information */}
                 <Card className="lg:col-span-2">
                     <CardHeader>
-                        <CardTitle className={"text-black"}>Personal Information</CardTitle>
-                        <CardDescription className={"text-black"}>
+                        <CardTitle>Personal Information</CardTitle>
+                        <CardDescription>
                             {editing ? 'Update your personal details' : 'Your account information'}
                         </CardDescription>
                     </CardHeader>
@@ -344,8 +344,8 @@ export default function ProfilePage() {
             {!editing && (
                 <Card>
                     <CardHeader>
-                        <CardTitle className={"text-black"}>Account Information</CardTitle>
-                        <CardDescription className={"text-black"}>Account creation and security details</CardDescription>
+                        <CardTitle>Account Information</CardTitle>
+                        <CardDescription>Account creation and security details</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

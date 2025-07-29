@@ -163,11 +163,11 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-black">Settings</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
                     <p className="text-gray-600">Manage your account preferences and configuration</p>
                 </div>
                 <Button onClick={saveSettings} disabled={saving}>
@@ -194,7 +194,7 @@ export default function SettingsPage() {
                 <div className="lg:col-span-1">
                     <Card>
                         <CardHeader>
-                            <CardTitle className={"text-black"}>Settings</CardTitle>
+                            <CardTitle>Settings</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
                             <a href="#business" className="block p-2 rounded hover:bg-gray-100 text-sm text-gray-900 hover:text-blue-600">
@@ -227,8 +227,8 @@ export default function SettingsPage() {
                     {/* Business Settings */}
                     <Card id="business">
                         <CardHeader>
-                            <CardTitle className={"text-black"}>Business Settings</CardTitle>
-                            <CardDescription className={"text-black"}>Configure your business information and defaults</CardDescription>
+                            <CardTitle>Business Settings</CardTitle>
+                            <CardDescription>Configure your business information and defaults</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
@@ -237,19 +237,18 @@ export default function SettingsPage() {
                                     id="businessName"
                                     value={settings.businessName}
                                     onChange={(e) => setSettings({...settings, businessName: e.target.value})}
-                                    className={"text-black"}
                                     placeholder="Your Business Name"
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="businessType" className="text-gray-900 ">Business Type</Label>
+                                <Label htmlFor="businessType" className="text-gray-900">Business Type</Label>
                                 <Select value={settings.businessType} onValueChange={(value) => setSettings({...settings, businessType: value})}>
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className={" bg-gray-500"}>
-                                        <SelectItem className={" bg-gray-500"} value="repair">Repair Services</SelectItem>
+                                    <SelectContent>
+                                        <SelectItem value="repair">Repair Services</SelectItem>
                                         <SelectItem value="maintenance">Maintenance</SelectItem>
                                         <SelectItem value="automotive">Automotive</SelectItem>
                                         <SelectItem value="electronics">Electronics</SelectItem>
@@ -276,8 +275,8 @@ export default function SettingsPage() {
                     {/* Notification Settings */}
                     <Card id="notifications">
                         <CardHeader>
-                            <CardTitle className={"text-black"}>Notification Preferences</CardTitle>
-                            <CardDescription className={"text-black"}>Choose how you want to be notified</CardDescription>
+                            <CardTitle>Notification Preferences</CardTitle>
+                            <CardDescription>Choose how you want to be notified</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center justify-between">
@@ -341,8 +340,8 @@ export default function SettingsPage() {
                     {/* Display Settings */}
                     <Card id="display">
                         <CardHeader>
-                            <CardTitle className={"text-black"}>Display & Language</CardTitle>
-                            <CardDescription className={"text-black"}>Customize your interface preferences</CardDescription>
+                            <CardTitle>Display & Language</CardTitle>
+                            <CardDescription>Customize your interface preferences</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
@@ -394,8 +393,8 @@ export default function SettingsPage() {
                     {/* Security Settings */}
                     <Card id="security">
                         <CardHeader>
-                            <CardTitle className={"text-black"}>Security & Privacy</CardTitle>
-                            <CardDescription className={"text-black"}>Manage your account security settings</CardDescription>
+                            <CardTitle>Security & Privacy</CardTitle>
+                            <CardDescription>Manage your account security settings</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center justify-between">
@@ -454,7 +453,7 @@ export default function SettingsPage() {
                     <Card id="danger" className="border-red-200">
                         <CardHeader>
                             <CardTitle className="text-red-600">Danger Zone</CardTitle>
-                            <CardDescription className={"text-red-600"}>Irreversible and destructive actions</CardDescription>
+                            <CardDescription>Irreversible and destructive actions</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
@@ -465,7 +464,6 @@ export default function SettingsPage() {
                                             <p className="text-xs text-gray-700">Permanently delete your account and all data</p>
                                         </div>
                                         <Button
-                                            className={"text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-200"}
                                             variant="destructive"
                                             size="sm"
                                             onClick={() => setShowDeleteConfirm(true)}
