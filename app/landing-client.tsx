@@ -1,15 +1,9 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState } from 'react';
 import { ThemeSwitcher } from "@/components/theme-switcher";
 
-interface Props {
-    authButton: ReactNode;
-}
-
-export default function LandingClient({ authButton }: Props) {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+export default function LandingClient() {
     const features = [
         {
             icon: '📝',
@@ -73,49 +67,6 @@ export default function LandingClient({ authButton }: Props) {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Navigation */}
-            <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center">
-                            <div className="text-2xl font-bold text-blue-600">🔧 ServiceTracker Pro</div>
-                        </div>
-
-                        <div className="hidden md:flex items-center space-x-8">
-                            <a href="#features" className="text-gray-600 hover:text-gray-900 transition duration-200">Features</a>
-                            <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 transition duration-200">How it Works</a>
-                            <a href="#testimonials" className="text-gray-600 hover:text-gray-900 transition duration-200">Testimonials</a>
-                            <a href="/auth" className="text-gray-600 hover:text-gray-900 transition duration-200">  </a>
-                            {authButton}
-                        </div>
-
-                        <div className="md:hidden">
-                            <button
-                                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="text-gray-600 hover:text-gray-900"
-                            >
-                                ☰
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Mobile Menu */}
-                    {isMenuOpen && (
-                        <div className="md:hidden pb-4">
-                            <div className="flex flex-col space-y-2">
-                                <a href="#features" className="text-gray-600 hover:text-gray-900 py-2">Features</a>
-                                <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 py-2">How it Works</a>
-                                <a href="#testimonials" className="text-gray-600 hover:text-gray-900 py-2">Testimonials</a>
-                                <a href="/auth" className="text-gray-600 hover:text-gray-900 py-2">Sign In</a>
-                                <a href="/auth" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200 mt-2 text-center">
-                                    Get Started
-                                </a>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </nav>
-
             {/* Hero Section */}
             <section className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20">
                 <div className="max-w-7xl mx-auto px-4 text-center">
@@ -129,7 +80,7 @@ export default function LandingClient({ authButton }: Props) {
                             Replace paperwork chaos with a professional digital workflow. Track every service request from intake to completion with our intuitive management system.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="/auth" className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-blue-700 transform hover:scale-105 transition duration-200 shadow-lg text-center">
+                            <a href="/auth/login" className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-blue-700 transform hover:scale-105 transition duration-200 shadow-lg text-center">
                                 Start Free Trial
                             </a>
                             <button className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-50 transition duration-200">
@@ -240,7 +191,7 @@ export default function LandingClient({ authButton }: Props) {
                         Join hundreds of service businesses already using ServiceTracker Pro to streamline their operations.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="/auth" className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-100 transform hover:scale-105 transition duration-200 shadow-lg text-center">
+                        <a href="/auth/login" className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-100 transform hover:scale-105 transition duration-200 shadow-lg text-center">
                             Start Free 14-Day Trial
                         </a>
                         <button className="border border-white text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white hover:text-blue-600 transition duration-200">
@@ -267,7 +218,7 @@ export default function LandingClient({ authButton }: Props) {
                         <div>
                             <h4 className="text-white font-semibold mb-4">Product</h4>
                             <ul className="space-y-2 text-sm">
-                                <li><a href="#" className="hover:text-white transition duration-200">Features</a></li>
+                                <li><a href="#features" className="hover:text-white transition duration-200">Features</a></li>
                                 <li><a href="#" className="hover:text-white transition duration-200">Pricing</a></li>
                                 <li><a href="#" className="hover:text-white transition duration-200">Demo</a></li>
                             </ul>
@@ -296,9 +247,7 @@ export default function LandingClient({ authButton }: Props) {
                         <p>&copy; 2025 ServiceTracker Pro. All rights reserved.</p>
                         <ThemeSwitcher />
                     </div>
-
                 </div>
-
             </footer>
         </div>
     );
