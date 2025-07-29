@@ -19,6 +19,7 @@ export default function MainNavigation({ user }: NavigationProps) {
     { name: 'Dashboard', href: '/protected/dashboard', icon: '📋' },
     { name: 'New Service', href: '/protected/intake', icon: '➕' },
     { name: 'Reports', href: '/protected/reports', icon: '📊' },
+    { name: 'Support', href: '/protected/support', icon: '🆘' },
     { name: 'Profile', href: '/protected/profile', icon: '👤' },
     { name: 'Settings', href: '/protected/settings', icon: '⚙️' }
   ];
@@ -179,9 +180,13 @@ export default function MainNavigation({ user }: NavigationProps) {
                     </div>
 
                     <div className="mt-3 space-y-1">
-                      <button className="block w-full text-left px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+                      <Link
+                          href="/protected/settings"
+                          className="block w-full text-left px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                      >
                         Settings
-                      </button>
+                      </Link>
 
                       {/* Mobile Logout Button */}
                       <div className="px-3 py-2">

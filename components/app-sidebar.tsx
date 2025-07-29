@@ -87,7 +87,7 @@ const data = {
         },
         {
             title: "Support",
-            url: "#",
+            url: "/protected/support",
             icon: LifeBuoy,
         },
     ],
