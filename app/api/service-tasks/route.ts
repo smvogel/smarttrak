@@ -1,7 +1,7 @@
 // app/api/service-tasks/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/app/lib/supabase/server';
-import { prisma } from '@/app/lib/prisma';
+import { getPrismaClient } from '@/app/lib/prisma'; // Changed from { prisma }
 
 // GET /api/service-tasks - Fetch all service tasks for Kanban board
 export async function GET(request: NextRequest) {
@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
         if (authError || !user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+
+        // Get enhanced Prisma client
+        const prisma = await getPrismaClient();
 
         // Get or create user record
         let userRecord = await prisma.user.findUnique({
@@ -107,6 +110,9 @@ export async function POST(request: NextRequest) {
         if (authError || !user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+
+        // Get enhanced Prisma client
+        const prisma = await getPrismaClient();
 
         // Get or create user record
         let userRecord = await prisma.user.findUnique({
@@ -232,6 +238,8 @@ function mapDisplayToServiceType(display: string): any {
         'Chain/Cassette Replacement': 'CHAIN_CASSETTE_REPLACEMENT',
         'Flat Tire Repair': 'FLAT_TIRE_REPAIR',
         'Custom Build': 'CUSTOM_BUILD',
+        'Diagnostic': 'DIAGNOSTIC',
+        'Warranty Work': 'WARRANTY_WORK',
         'Other': 'OTHER'
     };
     return mapping[display] || 'OTHER';
@@ -247,6 +255,8 @@ function mapServiceTypeToDisplay(enumValue: any): string {
         'CHAIN_CASSETTE_REPLACEMENT': 'Chain/Cassette Replacement',
         'FLAT_TIRE_REPAIR': 'Flat Tire Repair',
         'CUSTOM_BUILD': 'Custom Build',
+        'DIAGNOSTIC': 'Diagnostic',
+        'WARRANTY_WORK': 'Warranty Work',
         'OTHER': 'Other'
     };
     return mapping[enumValue] || 'Other';
