@@ -48,7 +48,6 @@ export async function GET(request: NextRequest) {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - daysAgo);
 
-        console.log(`Fetching dashboard stats for ${daysAgo} days, startDate: ${startDate.toISOString()}`);
 
         // Get service task statistics (changed from serviceJob to serviceTask)
         const [
@@ -253,11 +252,7 @@ export async function GET(request: NextRequest) {
             timeRange: daysAgo
         };
 
-        console.log('Dashboard stats response:', {
-            totalTasks,
-            completedTasks,
-            statusCount: statusDistribution.length
-        });
+
 
         return NextResponse.json({ stats });
 

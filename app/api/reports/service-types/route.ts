@@ -57,7 +57,6 @@ export async function GET(request: NextRequest) {
                 startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         }
 
-        console.log(`Fetching service types for time range: ${timeRange}, startDate: ${startDate.toISOString()}`);
 
         // 4. Get service type counts
         const serviceTypeCounts = await prisma.serviceTask.groupBy({
@@ -87,7 +86,7 @@ export async function GET(request: NextRequest) {
             percentage: totalTasks > 0 ? Math.round((item._count.serviceType / totalTasks) * 100) : 0,
         }));
 
-        console.log('Service types response:', { serviceTypes, totalTasks });
+
 
         return NextResponse.json({ serviceTypes, totalTasks });
 

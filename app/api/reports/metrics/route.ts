@@ -1,10 +1,11 @@
 // app/api/reports/metrics/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/app/lib/supabase/server';
-import { getPrismaClient } from '@/app/lib/prisma'; // Changed from { prisma }
+import { getPrismaClient } from '@/app/lib/prisma';
 
 export async function GET(request: NextRequest) {
     try {
+        // 1. Authenticate user (no user creation needed for reports)
         const supabase = await createClient();
         const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -12,25 +13,10 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Get enhanced Prisma client
+        // 2. Get enhanced Prisma client
         const prisma = await getPrismaClient();
 
-        // Get or create user record
-        let userRecord = await prisma.user.findUnique({
-            where: { supabaseId: user.id }
-        });
-
-        if (!userRecord) {
-            userRecord = await prisma.user.create({
-                data: {
-                    supabaseId: user.id,
-                    email: user.email || '',
-                    name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-                    role: 'EMPLOYEE'
-                }
-            });
-        }
-
+        // 3. Parse time range parameters
         const { searchParams } = new URL(request.url);
         const timeRange = searchParams.get('timeRange') || '30d';
 
@@ -55,43 +41,21 @@ export async function GET(request: NextRequest) {
                 startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         }
 
-        // Try to get metrics from DailyMetrics table first (optimized)
-        let dataSource = 'real_time';
-        let totalTasks = 0;
-        let completedTasks = 0;
+        console.log(`[METRICS] Fetching metrics for time range: ${timeRange}, startDate: ${startDate.toISOString()}`);
+
+        // 4. Try daily metrics first, then fall back to real-time
+        const dataSource = 'real_time';
+        let totalTasks: number;
+        let completedTasks: number;
         let avgTurnaroundTime = 0;
 
         try {
-            // Check if we have daily metrics data
-            const dailyMetrics = await prisma.dailyMetrics.findMany({
-                where: {
-                    date: {
-                        gte: startDate,
-                    },
-                },
-            });
-
-            if (dailyMetrics.length > 0) {
-                // Use aggregated data
-                totalTasks = dailyMetrics.reduce((sum, day) => sum + day.tasksCreated, 0);
-                completedTasks = dailyMetrics.reduce((sum, day) => sum + day.tasksCompleted, 0);
-
-                // Calculate weighted average turnaround time
-                const totalHours = dailyMetrics.reduce((sum, day) =>
-                    sum + ((day.avgTurnaroundHours || 0) * day.tasksCompleted), 0);
-                const totalCompletedFromMetrics = dailyMetrics.reduce((sum, day) => sum + day.tasksCompleted, 0);
-
-                if (totalCompletedFromMetrics > 0) {
-                    avgTurnaroundTime = Math.round((totalHours / totalCompletedFromMetrics / 24) * 10) / 10;
-                }
-
-                dataSource = 'daily_metrics';
-
-            } else {
-                throw new Error('No daily metrics available, falling back to real-time');
-            }
+            // TEMPORARY: Skip daily metrics and force real-time calculation
+            // until daily_metrics table is properly populated
+            console.log(`[METRICS] Forcing real-time calculation (daily metrics disabled)`);
+            throw new Error('Forcing real-time calculation');
         } catch (dailyMetricsError) {
-            console.log('Daily metrics unavailable, using real-time calculation:', dailyMetricsError);
+            console.log(`[METRICS] Daily metrics unavailable, using real-time calculation`);
 
             // Fallback to real-time calculation
             totalTasks = await prisma.serviceTask.count({
@@ -101,6 +65,8 @@ export async function GET(request: NextRequest) {
                     },
                 },
             });
+
+            console.log(`[METRICS] Real-time total tasks: ${totalTasks}`);
 
             // Get completed tasks (both COMPLETED and CLOSED count as completed)
             completedTasks = await prisma.serviceTask.count({
@@ -113,6 +79,8 @@ export async function GET(request: NextRequest) {
                     },
                 },
             });
+
+            console.log(`[METRICS] Real-time completed tasks: ${completedTasks}`);
 
             // Calculate average turnaround time for completed tasks
             const completedTasksWithTimes = await prisma.serviceTask.findMany({
@@ -132,6 +100,8 @@ export async function GET(request: NextRequest) {
                     actualCompletion: true,
                 },
             });
+
+            console.log(`[METRICS] Tasks with completion times: ${completedTasksWithTimes.length}`);
 
             if (completedTasksWithTimes.length > 0) {
                 const totalTurnaroundDays = completedTasksWithTimes.reduce((sum, task) => {
@@ -155,12 +125,12 @@ export async function GET(request: NextRequest) {
             dataSource, // For debugging
         };
 
-
+        console.log(`[METRICS] Final response:`, response);
 
         return NextResponse.json(response);
 
     } catch (error) {
-        console.error('Error fetching metrics:', error);
+        console.error('[METRICS] Error fetching metrics:', error);
         return NextResponse.json(
             { error: 'Failed to fetch metrics', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }

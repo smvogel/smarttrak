@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
                 startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         }
 
-        console.log(`Fetching status distribution for time range: ${timeRange}, startDate: ${startDate.toISOString()}`);
+
 
         // 5. Fetch the actual data (no user management needed)
         const statusCounts = await prisma.serviceTask.groupBy({
@@ -94,7 +94,6 @@ export async function GET(request: NextRequest) {
             percentage: totalTasks > 0 ? Math.round((item._count.status / totalTasks) * 100) : 0,
         }));
 
-        console.log('Status distribution response:', { statusDistribution, totalTasks });
 
         return NextResponse.json({ statusDistribution, totalTasks });
 
