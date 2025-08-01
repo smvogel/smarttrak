@@ -314,7 +314,7 @@ export async function DELETE(
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const { id } = params;
+        const { id } = await params;
 
         // Check if service task exists
         const existingTask = await prisma.serviceTask.findUnique({

@@ -1,6 +1,6 @@
 // app/protected/dashboard/page.tsx
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface ServiceTask {
@@ -30,6 +30,11 @@ export default function KanbanBoard() {
   const [editFormData, setEditFormData] = useState<any>({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [updating, setUpdating] = useState(false);
+
+  // Delete confirmation state
+  const [deleteConfirmTask, setDeleteConfirmTask] = useState<ServiceTask | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   const router = useRouter();
 
   const statuses = [
@@ -114,6 +119,24 @@ export default function KanbanBoard() {
     }
   };
 
+  // Delete service task via API
+  const deleteServiceTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/service-tasks/${taskId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete service task');
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Error deleting service task:', err);
+      throw err;
+    }
+  };
+
   useEffect(() => {
     loadServiceTasks();
   }, []);
@@ -169,6 +192,40 @@ export default function KanbanBoard() {
       alert('Failed to update service task. Please try again.');
     } finally {
       setUpdating(false);
+    }
+  };
+
+  // Delete confirmation and execution
+  const confirmDelete = (task: ServiceTask) => {
+    setDeleteConfirmTask(task);
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmTask(null);
+  };
+
+  const executeDelete = async () => {
+    if (!deleteConfirmTask) return;
+
+    try {
+      setDeleting(true);
+      await deleteServiceTask(deleteConfirmTask.id);
+
+      // Remove task from local state
+      setTasks(prev => prev.filter(task => task.id !== deleteConfirmTask.id));
+
+      // Clear collapsed state for deleted task
+      setCollapsedCards(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(deleteConfirmTask.id);
+        return newSet;
+      });
+
+      setDeleteConfirmTask(null);
+    } catch (err) {
+      alert('Failed to delete service task. Please try again.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -308,6 +365,13 @@ export default function KanbanBoard() {
                   title="Print Label"
               >
                 🖨️
+              </button>
+              <button
+                  onClick={() => confirmDelete(task)}
+                  className="text-gray-400 hover:text-red-600 text-xs p-1"
+                  title="Delete Task"
+              >
+                🗑️
               </button>
             </div>
           </div>
@@ -656,6 +720,59 @@ export default function KanbanBoard() {
                         disabled={updating}
                     >
                       {updating ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+          )}
+
+          {/* Delete Confirmation Modal */}
+          {deleteConfirmTask && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                  {/* Modal Header */}
+                  <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-xl font-semibold text-gray-900">Delete Service Task</h2>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6">
+                    <div className="flex items-center mb-4">
+                      <div className="flex-shrink-0 w-10 h-10 mx-auto bg-red-100 rounded-full flex items-center justify-center">
+                        <span className="text-red-600 text-lg">⚠️</span>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-gray-600 mb-2">
+                        Are you sure you want to delete this service task?
+                      </p>
+                      <div className="bg-gray-50 rounded-lg p-3 mt-4">
+                        <p className="font-semibold text-gray-900">{deleteConfirmTask.customerName}</p>
+                        <p className="text-sm text-gray-600">{deleteConfirmTask.serviceType}</p>
+                        <p className="text-sm text-gray-600">{deleteConfirmTask.bikeModel}</p>
+                        <p className="text-xs text-gray-400 mt-1">#{deleteConfirmTask.id.slice(-8)}</p>
+                      </div>
+                      <p className="text-sm text-red-600 mt-4 font-medium">
+                        This action cannot be undone.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="flex justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+                    <button
+                        onClick={cancelDelete}
+                        className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        disabled={deleting}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                        onClick={executeDelete}
+                        className="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                        disabled={deleting}
+                    >
+                      {deleting ? 'Deleting...' : 'Delete Task'}
                     </button>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { ThemeSwitcher } from "@/components/theme-switcher";
+import {ModeToggle} from "@/components/darkToggle";
 
 export default function LandingClient() {
     const features = [
@@ -244,8 +244,8 @@ export default function LandingClient() {
 
                     <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
                         <p>&copy; 2025 ServiceTracker Pro. All rights reserved.</p>
-                        <ThemeSwitcher />
                     </div>
+                    < ModeToggle />
                 </div>
             </footer>
         </div>
