@@ -44,7 +44,7 @@ export default function MainNavigation({ user }: NavigationProps) {
 
     const initials = name
         .split(' ')
-        .map((n: string) => n[0])  // Fixed: Added type annotation
+        .map((n: string) => n[0])
         .join('')
         .toUpperCase()
         .slice(0, 2);
@@ -55,13 +55,13 @@ export default function MainNavigation({ user }: NavigationProps) {
   const { name, email, initials } = getUserDisplayInfo();
 
   return (
-      <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <nav className="glass-nav sticky top-0 z-50 border-b border-opacity-20 border-white dark:border-gray-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <div className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition duration-200">
+              <Link href="/" className="flex items-center group">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition duration-200 group-hover:scale-105">
                   🔧 ServiceTracker Pro
                 </div>
               </Link>
@@ -69,18 +69,18 @@ export default function MainNavigation({ user }: NavigationProps) {
 
             {/* Desktop Navigation */}
             <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
+              <div className="ml-10 flex items-baseline space-x-2">
                 {navigationItems.map((item) => (
                     <Link
                         key={item.name}
                         href={item.href}
-                        className={`px-3 py-2 rounded-md text-sm font-medium transition duration-200 flex items-center space-x-2 ${
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 group ${
                             isActive(item.href)
-                                ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                ? 'glass-button bg-blue-600 dark:bg-blue-500 text-white shadow-lg'
+                                : 'glass-button text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                         }`}
                     >
-                      <span>{item.icon}</span>
+                      <span className="group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
                       <span>{item.name}</span>
                     </Link>
                 ))}
@@ -93,27 +93,29 @@ export default function MainNavigation({ user }: NavigationProps) {
               <div className="hidden lg:flex items-center space-x-2">
                 <Link
                     href="/protected/intake"
-                    className="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 transition duration-200"
+                    className="glass-button bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-200 font-medium shadow-lg hover:scale-105"
                 >
-                  Quick Intake
+                  ⚡ Quick Intake
                 </Link>
               </div>
 
               {/* User Profile */}
               <div className="hidden md:flex items-center space-x-3">
-                <button className="text-gray-500 hover:text-gray-700 relative">
+                <button className="glass-button text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 relative p-2 rounded-lg transition-all duration-200 group">
                   <span className="sr-only">Notifications</span>
-                  <div className="text-lg">🔔</div>
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs"></span>
+                  <div className="text-lg group-hover:scale-110 transition-transform duration-200">🔔</div>
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs shadow-lg animate-pulse"></span>
                 </button>
 
                 {user ? (
-                    <UserDropdownMenu user={user} />
+                    <div className="glass-button p-1 rounded-lg">
+                      <UserDropdownMenu user={user} />
+                    </div>
                 ) : (
                     <div className="relative">
-                      <button className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                      <button className="glass-button flex text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 p-1 transition-all duration-200 hover:scale-105">
                         <span className="sr-only">Open user menu</span>
-                        <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium">
+                        <div className="h-8 w-8 rounded-lg bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center text-sm font-medium shadow-lg">
                           U
                         </div>
                       </button>
@@ -121,18 +123,20 @@ export default function MainNavigation({ user }: NavigationProps) {
                 )}
 
                 {/* Desktop Logout Button */}
-                <LogoutButton
-                    variant="outline"
-                    size="sm"
-                    redirectTo="/auth/login"
-                />
+                <div className="glass-button rounded-lg p-1">
+                  <LogoutButton
+                      variant="outline"
+                      size="sm"
+                      redirectTo="/auth/login"
+                  />
+                </div>
               </div>
 
               {/* Mobile menu button */}
               <div className="md:hidden">
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 p-2"
+                    className="glass-button text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 p-3 rounded-lg transition-all duration-200 hover:scale-105"
                 >
                   <span className="sr-only">Open main menu</span>
                   {isMobileMenuOpen ? (
@@ -148,16 +152,16 @@ export default function MainNavigation({ user }: NavigationProps) {
           {/* Mobile Navigation Menu */}
           {isMobileMenuOpen && (
               <div className="md:hidden">
-                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 border-t border-gray-200">
+                <div className="glass-dark rounded-xl m-4 p-4 space-y-2 border border-opacity-20 border-white dark:border-gray-600">
                   {navigationItems.map((item) => (
                       <Link
                           key={item.name}
                           href={item.href}
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className={`block px-3 py-2 rounded-md text-base font-medium transition duration-200 ${
+                          className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
                               isActive(item.href)
-                                  ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500'
-                                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                  ? 'glass-button bg-blue-600 dark:bg-blue-500 text-white shadow-lg'
+                                  : 'glass-button text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                           }`}
                       >
                         <div className="flex items-center space-x-3">
@@ -168,32 +172,37 @@ export default function MainNavigation({ user }: NavigationProps) {
                   ))}
 
                   {/* Mobile user section */}
-                  <div className="pt-4 border-t border-gray-300 mt-4">
-                    <div className="flex items-center px-3 py-2">
-                      <div className="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium mr-3">
-                        {initials}
-                      </div>
-                      <div>
-                        <div className="text-base font-medium text-gray-800">{name}</div>
-                        <div className="text-sm text-gray-500">{email}</div>
+                  <div className="pt-4 border-t border-gray-300 dark:border-gray-600 border-opacity-30 mt-4">
+                    <div className="glass-effect rounded-lg p-4 mb-3">
+                      <div className="flex items-center">
+                        <div className="h-12 w-12 rounded-lg bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center text-sm font-medium mr-3 shadow-lg">
+                          {initials}
+                        </div>
+                        <div>
+                          <div className="text-base font-medium text-gray-800 dark:text-white">{name}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{email}</div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="mt-3 space-y-1">
+                    <div className="space-y-2">
                       <Link
                           href="/protected/settings"
-                          className="block w-full text-left px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
+                          className="glass-button block w-full text-left px-4 py-3 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg transition-all duration-200"
                           onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        Settings
+                        <div className="flex items-center space-x-3">
+                          <span>⚙️</span>
+                          <span>Settings</span>
+                        </div>
                       </Link>
 
                       {/* Mobile Logout Button */}
-                      <div className="px-3 py-2">
+                      <div className="p-2">
                         <LogoutButton
                             variant="outline"
                             size="sm"
-                            className="w-full"
+                            className="w-full glass-button"
                             redirectTo="/auth/login"
                         />
                       </div>
@@ -205,30 +214,38 @@ export default function MainNavigation({ user }: NavigationProps) {
         </div>
 
         {/* Live Status Bar */}
-        <div className="bg-gray-50 border-t border-gray-200 px-4 py-2">
+        <div className="glass-dark border-t border-opacity-20 border-white dark:border-gray-600 px-4 py-3">
           <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center text-sm text-gray-600">
+            <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
               <div className="flex space-x-6">
-              <span className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                <span><strong>15</strong> Total</span>
-              </span>
-                <span className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                <span><strong>5</strong> In Progress</span>
-              </span>
-                <span className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span><strong>8</strong> Completed Today</span>
-              </span>
+                <span className="glass-effect rounded-full px-3 py-1 flex items-center space-x-2 hover:scale-105 transition-transform duration-200">
+                  <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full"></div>
+                  <span><strong>15</strong> Total</span>
+                </span>
+                <span className="glass-effect rounded-full px-3 py-1 flex items-center space-x-2 hover:scale-105 transition-transform duration-200">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                  <span><strong>5</strong> In Progress</span>
+                </span>
+                <span className="glass-effect rounded-full px-3 py-1 flex items-center space-x-2 hover:scale-105 transition-transform duration-200">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span><strong>8</strong> Completed Today</span>
+                </span>
               </div>
               <div className="hidden sm:flex items-center space-x-2">
-                <span>Last updated: 2 min ago</span>
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="glass-effect rounded-full px-3 py-1 flex items-center space-x-2">
+                  <span>Last updated: 2 min ago</span>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </span>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Floating decorative elements */}
+        <div className="absolute top-0 left-1/4 w-16 h-16 glass-effect rounded-full opacity-10 floating-element pointer-events-none"></div>
+        <div className="absolute top-0 right-1/3 w-12 h-12 glass-effect rounded-full opacity-5 floating-slow pointer-events-none"></div>
+
+
       </nav>
   );
 }
