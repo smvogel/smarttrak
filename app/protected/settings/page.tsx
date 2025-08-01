@@ -7,10 +7,7 @@ import { createClient } from '@/app/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import {
     Bell,
     Shield,
@@ -73,6 +70,7 @@ export default function SettingsPage() {
     const [error, setError] = useState<string | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [activeSection, setActiveSection] = useState('business');
     const router = useRouter();
 
     const supabase = createClient();
@@ -151,347 +149,461 @@ export default function SettingsPage() {
         setShowDeleteConfirm(false);
     };
 
+    // Custom Select Component
+    const CustomSelect = ({ value, onValueChange, options, placeholder }: {
+        value: string;
+        onValueChange: (value: string) => void;
+        options: { value: string; label: string }[];
+        placeholder?: string;
+    }) => {
+        const [isOpen, setIsOpen] = useState(false);
+
+        return (
+            <div className="relative">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="glass-button w-full px-3 py-2 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-gray-900 dark:text-white text-left"
+                >
+                    {options.find(opt => opt.value === value)?.label || placeholder}
+                </button>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                    <svg
+                        className={`w-4 h-4 text-gray-400 dark:text-gray-300 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+
+                {isOpen && (
+                    <div className="absolute top-full left-0 mt-1 glass-modal rounded-lg shadow-xl border border-white/20 dark:border-gray-600/30 w-full z-50">
+                        <div className="py-1">
+                            {options.map((option) => (
+                                <button
+                                    key={option.value}
+                                    onClick={() => {
+                                        onValueChange(option.value);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`w-full text-left px-4 py-2 text-sm transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg ${
+                                        value === option.value
+                                            ? 'bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-white/10 dark:hover:bg-gray-700/20'
+                                    }`}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     if (authLoading || loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading settings...</p>
+            <div className="flex items-center justify-center min-h-screen relative overflow-hidden">
+                {/* Floating decorative elements */}
+                <div className="absolute top-20 left-20 w-32 h-32 glass-effect rounded-full floating-element opacity-20"></div>
+                <div className="absolute bottom-20 right-20 w-24 h-24 glass-effect rounded-full floating-slow opacity-15"></div>
+
+                <div className="glass-card rounded-xl p-8 text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+                    <p className="mt-4 text-gray-600 dark:text-gray-300">⚙️ Loading settings...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-                    <p className="text-gray-600">Manage your account preferences and configuration</p>
-                </div>
-                <Button onClick={saveSettings} disabled={saving}>
-                    <Save className="w-4 h-4 mr-2" />
-                    {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
-            </div>
+        <div className="min-h-screen py-8 relative overflow-hidden">
+            {/* Floating decorative elements */}
+            <div className="absolute top-10 left-10 w-40 h-40 glass-effect rounded-full floating-element opacity-10"></div>
+            <div className="absolute top-1/2 right-10 w-32 h-32 glass-effect rounded-full floating-slow opacity-15"></div>
+            <div className="absolute bottom-20 left-1/4 w-24 h-24 glass-effect rounded-full floating-fast opacity-20"></div>
+            <div className="absolute top-20 right-1/4 w-28 h-28 glass-effect rounded-full floating-element opacity-12"></div>
 
-            {/* Success/Error Messages */}
-            {success && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-                    {success}
-                </div>
-            )}
-
-            {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                    {error}
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Settings Navigation */}
-                <div className="lg:col-span-1">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Settings</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            <a href="#business" className="block p-2 rounded hover:bg-gray-100 text-sm text-gray-900 hover:text-blue-600">
-                                <User className="w-4 h-4 inline mr-2" />
-                                Business Settings
-                            </a>
-                            <a href="#notifications" className="block p-2 rounded hover:bg-gray-100 text-sm text-gray-900 hover:text-blue-600">
-                                <Bell className="w-4 h-4 inline mr-2" />
-                                Notifications
-                            </a>
-                            <a href="#display" className="block p-2 rounded hover:bg-gray-100 text-sm text-gray-900 hover:text-blue-600">
-                                <Monitor className="w-4 h-4 inline mr-2" />
-                                Display & Language
-                            </a>
-                            <a href="#security" className="block p-2 rounded hover:bg-gray-100 text-sm text-gray-900 hover:text-blue-600">
-                                <Shield className="w-4 h-4 inline mr-2" />
-                                Security & Privacy
-                            </a>
-                            <a href="#danger" className="block p-2 rounded hover:bg-red-50 text-sm text-red-600 hover:text-red-700">
-                                <AlertTriangle className="w-4 h-4 inline mr-2" />
-                                Danger Zone
-                            </a>
-                        </CardContent>
-                    </Card>
+            <div className="max-w-4xl mx-auto space-y-6 px-4 relative z-10">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div className="glass-card rounded-xl p-6">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">⚙️ Settings</h1>
+                        <p className="text-gray-600 dark:text-gray-300">Manage your account preferences and configuration</p>
+                    </div>
+                    <button
+                        onClick={saveSettings}
+                        disabled={saving}
+                        className="glass-button bg-blue-600 dark:bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-200 disabled:opacity-50 hover:scale-105 flex items-center space-x-2"
+                    >
+                        <Save className="w-4 h-4" />
+                        <span>{saving ? '💾 Saving...' : '💾 Save Changes'}</span>
+                    </button>
                 </div>
 
-                {/* Settings Content */}
-                <div className="lg:col-span-2 space-y-6">
+                {/* Success/Error Messages */}
+                {success && (
+                    <div className="glass-card rounded-xl border border-green-200 dark:border-green-800 p-4">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-green-600 dark:text-green-400">✅</span>
+                            <span className="text-green-700 dark:text-green-300">{success}</span>
+                        </div>
+                    </div>
+                )}
 
-                    {/* Business Settings */}
-                    <Card id="business">
-                        <CardHeader>
-                            <CardTitle>Business Settings</CardTitle>
-                            <CardDescription>Configure your business information and defaults</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <Label htmlFor="businessName" className="text-gray-900">Business Name</Label>
-                                <Input
-                                    id="businessName"
-                                    value={settings.businessName}
-                                    onChange={(e) => setSettings({...settings, businessName: e.target.value})}
-                                    placeholder="Your Business Name"
-                                />
+                {error && (
+                    <div className="glass-card rounded-xl border border-red-200 dark:border-red-800 p-4">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-red-600 dark:text-red-400">❌</span>
+                            <span className="text-red-700 dark:text-red-300">{error}</span>
+                        </div>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Settings Navigation */}
+                    <div className="lg:col-span-1">
+                        <div className="glass-card rounded-xl p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">📋 Settings</h3>
+                            <div className="space-y-2">
+                                <button
+                                    onClick={() => setActiveSection('business')}
+                                    className={`w-full text-left p-3 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2 ${
+                                        activeSection === 'business'
+                                            ? 'glass-button bg-blue-600 dark:bg-blue-500 text-white'
+                                            : 'glass-button text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    <User className="w-4 h-4" />
+                                    <span> Business Settings</span>
+                                </button>
+                                <button
+                                    onClick={() => setActiveSection('notifications')}
+                                    className={`w-full text-left p-3 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2 ${
+                                        activeSection === 'notifications'
+                                            ? 'glass-button bg-blue-600 dark:bg-blue-500 text-white'
+                                            : 'glass-button text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    <Bell className="w-4 h-4" />
+                                    <span> Notifications</span>
+                                </button>
+                                <button
+                                    onClick={() => setActiveSection('display')}
+                                    className={`w-full text-left p-3 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2 ${
+                                        activeSection === 'display'
+                                            ? 'glass-button bg-blue-600 dark:bg-blue-500 text-white'
+                                            : 'glass-button text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    <Monitor className="w-4 h-4" />
+                                    <span> Display & Language</span>
+                                </button>
+                                <button
+                                    onClick={() => setActiveSection('security')}
+                                    className={`w-full text-left p-3 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2 ${
+                                        activeSection === 'security'
+                                            ? 'glass-button bg-blue-600 dark:bg-blue-500 text-white'
+                                            : 'glass-button text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    <Shield className="w-4 h-4" />
+                                    <span> Security & Privacy</span>
+                                </button>
+                                <button
+                                    onClick={() => setActiveSection('danger')}
+                                    className={`w-full text-left p-3 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2 ${
+                                        activeSection === 'danger'
+                                            ? 'glass-button bg-red-600 dark:bg-red-500 text-white'
+                                            : 'glass-button text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300'
+                                    }`}
+                                >
+                                    <AlertTriangle className="w-4 h-4" />
+                                    <span> Danger Zone</span>
+                                </button>
                             </div>
+                        </div>
+                    </div>
 
-                            <div>
-                                <Label htmlFor="businessType" className="text-gray-900">Business Type</Label>
-                                <Select value={settings.businessType} onValueChange={(value) => setSettings({...settings, businessType: value})}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="repair">Repair Services</SelectItem>
-                                        <SelectItem value="maintenance">Maintenance</SelectItem>
-                                        <SelectItem value="automotive">Automotive</SelectItem>
-                                        <SelectItem value="electronics">Electronics</SelectItem>
-                                        <SelectItem value="appliance">Appliance Repair</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                    {/* Settings Content */}
+                    <div className="lg:col-span-2 space-y-6">
 
-                            <div>
-                                <Label htmlFor="serviceDuration" className="text-gray-900">Default Service Duration (days)</Label>
-                                <Input
-                                    id="serviceDuration"
-                                    type="number"
-                                    min="1"
-                                    max="30"
-                                    value={settings.defaultServiceDuration}
-                                    onChange={(e) => setSettings({...settings, defaultServiceDuration: parseInt(e.target.value)})}
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
+                        {/* Business Settings */}
+                        {activeSection === 'business' && (
+                            <div className="glass-card rounded-xl p-6">
+                                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">🏢 Business Settings</h3>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6">Configure your business information and defaults</p>
 
-                    {/* Notification Settings */}
-                    <Card id="notifications">
-                        <CardHeader>
-                            <CardTitle>Notification Preferences</CardTitle>
-                            <CardDescription>Choose how you want to be notified</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <Mail className="w-4 h-4 text-blue-600" />
+                                <div className="space-y-4">
                                     <div>
-                                        <p className="text-sm font-medium text-gray-900">Email Notifications</p>
-                                        <p className="text-xs text-gray-600">Receive updates via email</p>
-                                    </div>
-                                </div>
-                                <Switch
-                                    checked={settings.emailNotifications}
-                                    onCheckedChange={(checked) => setSettings({...settings, emailNotifications: checked})}
-                                />
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <Smartphone className="w-4 h-4 text-blue-600" />
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-900">SMS Notifications</p>
-                                        <p className="text-xs text-gray-600">Receive text messages</p>
-                                    </div>
-                                </div>
-                                <Switch
-                                    checked={settings.smsNotifications}
-                                    onCheckedChange={(checked) => setSettings({...settings, smsNotifications: checked})}
-                                />
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <Bell className="w-4 h-4 text-blue-600" />
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-900">Push Notifications</p>
-                                        <p className="text-xs text-gray-600">Browser notifications</p>
-                                    </div>
-                                </div>
-                                <Switch
-                                    checked={settings.pushNotifications}
-                                    onCheckedChange={(checked) => setSettings({...settings, pushNotifications: checked})}
-                                />
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <Mail className="w-4 h-4 text-blue-600" />
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-900">Marketing Emails</p>
-                                        <p className="text-xs text-gray-600">Product updates and tips</p>
-                                    </div>
-                                </div>
-                                <Switch
-                                    checked={settings.marketingEmails}
-                                    onCheckedChange={(checked) => setSettings({...settings, marketingEmails: checked})}
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Display Settings */}
-                    <Card id="display">
-                        <CardHeader>
-                            <CardTitle>Display & Language</CardTitle>
-                            <CardDescription>Customize your interface preferences</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <Label htmlFor="theme" className="text-gray-900">Theme</Label>
-                                <Select value={settings.theme} onValueChange={(value: 'light' | 'dark' | 'system') => setSettings({...settings, theme: value})}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="light">Light</SelectItem>
-                                        <SelectItem value="dark">Dark</SelectItem>
-                                        <SelectItem value="system">System</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div>
-                                <Label htmlFor="timezone" className="text-gray-900">Timezone</Label>
-                                <Select value={settings.timezone} onValueChange={(value) => setSettings({...settings, timezone: value})}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                                        <SelectItem value="America/Chicago">Central Time</SelectItem>
-                                        <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                                        <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
-                                        <SelectItem value="UTC">UTC</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div>
-                                <Label htmlFor="dateFormat" className="text-gray-900">Date Format</Label>
-                                <Select value={settings.dateFormat} onValueChange={(value) => setSettings({...settings, dateFormat: value})}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="MM/dd/yyyy">MM/DD/YYYY</SelectItem>
-                                        <SelectItem value="dd/MM/yyyy">DD/MM/YYYY</SelectItem>
-                                        <SelectItem value="yyyy-MM-dd">YYYY-MM-DD</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Security Settings */}
-                    <Card id="security">
-                        <CardHeader>
-                            <CardTitle>Security & Privacy</CardTitle>
-                            <CardDescription>Manage your account security settings</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
-                                    <p className="text-xs text-gray-600">Add an extra layer of security</p>
-                                </div>
-                                <Switch
-                                    checked={settings.twoFactorEnabled}
-                                    onCheckedChange={(checked) => setSettings({...settings, twoFactorEnabled: checked})}
-                                />
-                            </div>
-
-                            <div>
-                                <Label htmlFor="sessionTimeout" className="text-gray-900">Session Timeout (minutes)</Label>
-                                <Select value={settings.sessionTimeout.toString()} onValueChange={(value) => setSettings({...settings, sessionTimeout: parseInt(value)})}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="15">15 minutes</SelectItem>
-                                        <SelectItem value="30">30 minutes</SelectItem>
-                                        <SelectItem value="60">1 hour</SelectItem>
-                                        <SelectItem value="240">4 hours</SelectItem>
-                                        <SelectItem value="480">8 hours</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <Separator />
-
-                            <div>
-                                <h4 className="text-sm font-medium mb-2 text-gray-900">Change Password</h4>
-                                <div className="space-y-2">
-                                    <div className="relative">
+                                        <Label className="text-gray-900 dark:text-white mb-2 block">Business Name</Label>
                                         <Input
-                                            type={passwordVisible ? "text" : "password"}
-                                            placeholder="New password"
+                                            value={settings.businessName}
+                                            onChange={(e) => setSettings({...settings, businessName: e.target.value})}
+                                            placeholder="Your Business Name"
+                                            className="glass-effect border border-white/20 dark:border-gray-600/30 text-gray-900 dark:text-white"
                                         />
-                                        <button
-                                            type="button"
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                            onClick={() => setPasswordVisible(!passwordVisible)}
-                                        >
-                                            {passwordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                        </button>
                                     </div>
-                                    <Input type="password" placeholder="Confirm new password" />
-                                    <Button variant="outline" size="sm">Update Password</Button>
+
+                                    <div>
+                                        <Label className="text-gray-900 dark:text-white mb-2 block">Business Type</Label>
+                                        <CustomSelect
+                                            value={settings.businessType}
+                                            onValueChange={(value) => setSettings({...settings, businessType: value})}
+                                            options={[
+                                                { value: 'repair', label: 'Repair Services' },
+                                                { value: 'maintenance', label: 'Maintenance' },
+                                                { value: 'automotive', label: 'Automotive' },
+                                                { value: 'electronics', label: 'Electronics' },
+                                                { value: 'appliance', label: 'Appliance Repair' },
+                                                { value: 'other', label: 'Other' }
+                                            ]}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-gray-900 dark:text-white mb-2 block">Default Service Duration (days)</Label>
+                                        <Input
+                                            type="number"
+                                            min="1"
+                                            max="30"
+                                            value={settings.defaultServiceDuration}
+                                            onChange={(e) => setSettings({...settings, defaultServiceDuration: parseInt(e.target.value)})}
+                                            className="glass-effect border border-white/20 dark:border-gray-600/30 text-gray-900 dark:text-white"
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        )}
 
-                    {/* Danger Zone */}
-                    <Card id="danger" className="border-red-200">
-                        <CardHeader>
-                            <CardTitle className="text-red-600">Danger Zone</CardTitle>
-                            <CardDescription>Irreversible and destructive actions</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="p-4 border border-red-200 rounded-lg">
+                        {/* Notification Settings */}
+                        {activeSection === 'notifications' && (
+                            <div className="glass-card rounded-xl p-6">
+                                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">🔔 Notification Preferences</h3>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6">Choose how you want to be notified</p>
+
+                                <div className="space-y-4">
+                                    <div className="glass-effect rounded-lg p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-3">
+                                                <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">📧 Email Notifications</p>
+                                                    <p className="text-xs text-gray-600 dark:text-gray-400">Receive updates via email</p>
+                                                </div>
+                                            </div>
+                                            <Switch
+                                                checked={settings.emailNotifications}
+                                                onCheckedChange={(checked) => setSettings({...settings, emailNotifications: checked})}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="glass-effect rounded-lg p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-3">
+                                                <Smartphone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">📱 SMS Notifications</p>
+                                                    <p className="text-xs text-gray-600 dark:text-gray-400">Receive text messages</p>
+                                                </div>
+                                            </div>
+                                            <Switch
+                                                checked={settings.smsNotifications}
+                                                onCheckedChange={(checked) => setSettings({...settings, smsNotifications: checked})}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="glass-effect rounded-lg p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-3">
+                                                <Bell className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">🔔 Push Notifications</p>
+                                                    <p className="text-xs text-gray-600 dark:text-gray-400">Browser notifications</p>
+                                                </div>
+                                            </div>
+                                            <Switch
+                                                checked={settings.pushNotifications}
+                                                onCheckedChange={(checked) => setSettings({...settings, pushNotifications: checked})}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="glass-effect rounded-lg p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-3">
+                                                <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">📈 Marketing Emails</p>
+                                                    <p className="text-xs text-gray-600 dark:text-gray-400">Product updates and tips</p>
+                                                </div>
+                                            </div>
+                                            <Switch
+                                                checked={settings.marketingEmails}
+                                                onCheckedChange={(checked) => setSettings({...settings, marketingEmails: checked})}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Display Settings */}
+                        {activeSection === 'display' && (
+                            <div className="glass-card rounded-xl p-6">
+                                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">🎨 Display & Language</h3>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6">Customize your interface preferences</p>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label className="text-gray-900 dark:text-white mb-2 block">🌍 Timezone</Label>
+                                        <CustomSelect
+                                            value={settings.timezone}
+                                            onValueChange={(value) => setSettings({...settings, timezone: value})}
+                                            options={[
+                                                { value: 'America/New_York', label: 'Eastern Time' },
+                                                { value: 'America/Chicago', label: 'Central Time' },
+                                                { value: 'America/Denver', label: 'Mountain Time' },
+                                                { value: 'America/Los_Angeles', label: 'Pacific Time' },
+                                                { value: 'UTC', label: 'UTC' }
+                                            ]}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-gray-900 dark:text-white mb-2 block">📅 Date Format</Label>
+                                        <CustomSelect
+                                            value={settings.dateFormat}
+                                            onValueChange={(value) => setSettings({...settings, dateFormat: value})}
+                                            options={[
+                                                { value: 'MM/dd/yyyy', label: 'MM/DD/YYYY' },
+                                                { value: 'dd/MM/yyyy', label: 'DD/MM/YYYY' },
+                                                { value: 'yyyy-MM-dd', label: 'YYYY-MM-DD' }
+                                            ]}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Security Settings */}
+                        {activeSection === 'security' && (
+                            <div className="glass-card rounded-xl p-6">
+                                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">🔒 Security & Privacy</h3>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6">Manage your account security settings</p>
+
+                                <div className="space-y-6">
+                                    <div className="glass-effect rounded-lg p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-900 dark:text-white">🔐 Two-Factor Authentication</p>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400">Add an extra layer of security</p>
+                                            </div>
+                                            <Switch
+                                                checked={settings.twoFactorEnabled}
+                                                onCheckedChange={(checked) => setSettings({...settings, twoFactorEnabled: checked})}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-gray-900 dark:text-white mb-2 block">⏱️ Session Timeout</Label>
+                                        <CustomSelect
+                                            value={settings.sessionTimeout.toString()}
+                                            onValueChange={(value) => setSettings({...settings, sessionTimeout: parseInt(value)})}
+                                            options={[
+                                                { value: '15', label: '15 minutes' },
+                                                { value: '30', label: '30 minutes' },
+                                                { value: '60', label: '1 hour' },
+                                                { value: '240', label: '4 hours' },
+                                                { value: '480', label: '8 hours' }
+                                            ]}
+                                        />
+                                    </div>
+
+                                    <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+
+                                    <div className="glass-effect rounded-lg p-4">
+                                        <h4 className="text-sm font-medium mb-4 text-gray-900 dark:text-white">🔑 Change Password</h4>
+                                        <div className="space-y-3">
+                                            <div className="relative">
+                                                <Input
+                                                    type={passwordVisible ? "text" : "password"}
+                                                    placeholder="New password"
+                                                    className="glass-effect border border-white/20 dark:border-gray-600/30 text-gray-900 dark:text-white pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                                    onClick={() => setPasswordVisible(!passwordVisible)}
+                                                >
+                                                    {passwordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                            <Input
+                                                type="password"
+                                                placeholder="Confirm new password"
+                                                className="glass-effect border border-white/20 dark:border-gray-600/30 text-gray-900 dark:text-white"
+                                            />
+                                            <button className="glass-button text-sm px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200">
+                                                🔄 Update Password
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Danger Zone */}
+                        {activeSection === 'danger' && (
+                            <div className="glass-card rounded-xl p-6 border border-red-200 dark:border-red-800">
+                                <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">⚠️ Danger Zone</h3>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6">Irreversible and destructive actions</p>
+
+                                <div className="glass-effect rounded-lg p-4 border border-red-200 dark:border-red-800">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h4 className="text-sm font-medium text-red-600">Delete Account</h4>
-                                            <p className="text-xs text-gray-700">Permanently delete your account and all data</p>
+                                            <h4 className="text-sm font-medium text-red-600 dark:text-red-400">🗑️ Delete Account</h4>
+                                            <p className="text-xs text-gray-700 dark:text-gray-300">Permanently delete your account and all data</p>
                                         </div>
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
+                                        <button
                                             onClick={() => setShowDeleteConfirm(true)}
+                                            className="glass-button bg-red-600 dark:bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-all duration-200 text-sm flex items-center space-x-2"
                                         >
-                                            <Trash2 className="w-4 h-4 mr-2" />
-                                            Delete Account
-                                        </Button>
+                                            <Trash2 className="w-4 h-4" />
+                                            <span>Delete Account</span>
+                                        </button>
                                     </div>
 
                                     {showDeleteConfirm && (
-                                        <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
-                                            <p className="text-sm text-red-700 mb-3">
-                                                Are you sure? This action cannot be undone.
+                                        <div className="mt-4 glass-dark rounded-lg p-4 border border-red-200 dark:border-red-800">
+                                            <p className="text-sm text-red-700 dark:text-red-300 mb-3">
+                                                ⚠️ Are you sure? This action cannot be undone.
                                             </p>
                                             <div className="flex space-x-2">
-                                                <Button size="sm" variant="destructive" onClick={handleDeleteAccount}>
+                                                <button
+                                                    onClick={handleDeleteAccount}
+                                                    className="glass-button bg-red-600 dark:bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-all duration-200 text-sm"
+                                                >
                                                     Yes, Delete Account
-                                                </Button>
-                                                <Button size="sm" variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowDeleteConfirm(false)}
+                                                    className="glass-button text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:text-gray-900 dark:hover:text-white transition-all duration-200 text-sm"
+                                                >
                                                     Cancel
-                                                </Button>
+                                                </button>
                                             </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

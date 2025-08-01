@@ -7,9 +7,7 @@ import { createClient } from '@/app/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { User, Mail, Calendar, Shield, Edit2, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -154,10 +152,14 @@ export default function ProfilePage() {
 
     if (authLoading || loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading profile...</p>
+            <div className="flex items-center justify-center min-h-screen relative overflow-hidden">
+                {/* Floating decorative elements */}
+                <div className="absolute top-20 left-20 w-32 h-32 glass-effect rounded-full floating-element opacity-20"></div>
+                <div className="absolute bottom-20 right-20 w-24 h-24 glass-effect rounded-full floating-slow opacity-15"></div>
+
+                <div className="glass-card rounded-xl p-8 text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+                    <p className="mt-4 text-gray-600 dark:text-gray-300">👤 Loading profile...</p>
                 </div>
             </div>
         );
@@ -165,219 +167,265 @@ export default function ProfilePage() {
 
     if (!profile) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Card className="w-full max-w-md">
-                    <CardContent className="pt-6">
-                        <div className="text-center">
-                            <p className="text-red-600">Failed to load profile</p>
-                            <Button onClick={loadProfile} className="mt-4">
-                                Try Again
-                            </Button>
+            <div className="flex items-center justify-center min-h-screen relative overflow-hidden">
+                {/* Floating decorative elements */}
+                <div className="absolute top-20 left-20 w-32 h-32 glass-effect rounded-full floating-element opacity-20"></div>
+                <div className="absolute bottom-20 right-20 w-24 h-24 glass-effect rounded-full floating-slow opacity-15"></div>
+
+                <div className="glass-card rounded-xl p-6 max-w-md w-full">
+                    <div className="text-center">
+                        <div className="glass-effect rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <span className="text-red-600 dark:text-red-400 text-2xl">⚠️</span>
                         </div>
-                    </CardContent>
-                </Card>
+                        <p className="text-red-600 dark:text-red-400 mb-4">Failed to load profile</p>
+                        <button
+                            onClick={loadProfile}
+                            className="glass-button bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-200 hover:scale-105"
+                        >
+                            🔄 Try Again
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-                    <p className="text-gray-600">Manage your account information</p>
+        <div className="min-h-screen py-8 relative overflow-hidden">
+            {/* Floating decorative elements */}
+            <div className="absolute top-10 left-10 w-40 h-40 glass-effect rounded-full floating-element opacity-10"></div>
+            <div className="absolute top-1/2 right-10 w-32 h-32 glass-effect rounded-full floating-slow opacity-15"></div>
+            <div className="absolute bottom-20 left-1/4 w-24 h-24 glass-effect rounded-full floating-fast opacity-20"></div>
+            <div className="absolute top-20 right-1/4 w-28 h-28 glass-effect rounded-full floating-element opacity-12"></div>
+
+            <div className="max-w-4xl mx-auto space-y-6 px-4 relative z-10">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div className="glass-card rounded-xl p-6">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">👤 Profile</h1>
+                        <p className="text-gray-600 dark:text-gray-300">Manage your account information</p>
+                    </div>
+                    {!editing && (
+                        <button
+                            onClick={() => setEditing(true)}
+                            className="glass-button text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg hover:text-gray-900 dark:hover:text-white transition-all duration-200 hover:scale-105 flex items-center space-x-2"
+                        >
+                            <Edit2 className="w-4 h-4" />
+                            <span> Edit Profile</span>
+                        </button>
+                    )}
                 </div>
-                {!editing && (
-                    <Button onClick={() => setEditing(true)} variant="outline">
-                        <Edit2 className="w-4 h-4 mr-2" />
-                        Edit Profile
-                    </Button>
+
+                {/* Success/Error Messages */}
+                {success && (
+                    <div className="glass-card rounded-xl border border-green-200 dark:border-green-800 p-4">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-green-600 dark:text-green-400">✅</span>
+                            <span className="text-green-700 dark:text-green-300">{success}</span>
+                        </div>
+                    </div>
                 )}
-            </div>
 
-            {/* Success/Error Messages */}
-            {success && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-                    {success}
-                </div>
-            )}
+                {error && (
+                    <div className="glass-card rounded-xl border border-red-200 dark:border-red-800 p-4">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-red-600 dark:text-red-400">❌</span>
+                            <span className="text-red-700 dark:text-red-300">{error}</span>
+                        </div>
+                    </div>
+                )}
 
-            {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                    {error}
-                </div>
-            )}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Profile Card */}
+                    <div className="lg:col-span-1">
+                        <div className="glass-card rounded-xl p-6">
+                            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6"> Profile Picture</h3>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Profile Card */}
-                <Card className="lg:col-span-1">
-                    <CardHeader>
-                        <CardTitle>Profile Picture</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                        <Avatar className="w-24 h-24 mx-auto mb-4">
-                            <AvatarImage
-                                src={editing ? formData.avatar_url : profile.avatar_url}
-                                alt={profile.full_name || 'User'}
-                            />
-                            <AvatarFallback className="text-lg">
-                                {getInitials(profile.full_name || profile.email)}
-                            </AvatarFallback>
-                        </Avatar>
+                            <div className="text-center">
+                                <div className="relative mb-6">
+                                    <Avatar className="w-24 h-24 mx-auto glass-effect border-4 border-white/20 dark:border-gray-600/30">
+                                        <AvatarImage
+                                            src={editing ? formData.avatar_url : profile.avatar_url}
+                                            alt={profile.full_name || 'User'}
+                                        />
+                                        <AvatarFallback className="text-lg glass-effect">
+                                            {getInitials(profile.full_name || profile.email)}
+                                        </AvatarFallback>
+                                    </Avatar>
 
-                        {editing && (
-                            <div className="space-y-2">
-                                <Label htmlFor="avatar_url">Avatar URL</Label>
-                                <Input
-                                    id="avatar_url"
-                                    type="url"
-                                    placeholder="https://example.com/avatar.jpg"
-                                    value={formData.avatar_url}
-                                    onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                                />
-                            </div>
-                        )}
+                                </div>
 
-                        {!editing && (
-                            <div>
-                                <h3 className="text-lg font-semibold">{profile.full_name || 'No name set'}</h3>
-                                <p className="text-gray-600">{profile.email}</p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* Profile Information */}
-                <Card className="lg:col-span-2">
-                    <CardHeader>
-                        <CardTitle>Personal Information</CardTitle>
-                        <CardDescription>
-                            {editing ? 'Update your personal details' : 'Your account information'}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {editing ? (
-                            // Edit Form
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label htmlFor="full_name">Full Name</Label>
+                                {editing && (
+                                    <div className="space-y-2">
+                                        <Label className="text-gray-900 dark:text-white text-sm">🔗 Avatar URL</Label>
                                         <Input
-                                            id="full_name"
-                                            value={formData.full_name}
-                                            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                                            placeholder="Enter your full name"
+                                            type="url"
+                                            placeholder="https://example.com/avatar.jpg"
+                                            value={formData.avatar_url}
+                                            onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+                                            className="glass-effect border border-white/20 dark:border-gray-600/30 text-gray-900 dark:text-white"
                                         />
                                     </div>
-                                    <div>
-                                        <Label htmlFor="phone">Phone Number</Label>
-                                        <Input
-                                            id="phone"
-                                            type="tel"
-                                            value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            placeholder="Enter your phone number"
-                                        />
+                                )}
+
+                                {!editing && (
+                                    <div className="glass-effect rounded-lg p-4">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{profile.full_name || 'No name set'}</h3>
+                                        <p className="text-gray-600 dark:text-gray-400">{profile.email}</p>
                                     </div>
-                                </div>
-
-                                <div>
-                                    <Label htmlFor="email">Email (Read-only)</Label>
-                                    <Input
-                                        id="email"
-                                        value={profile.email}
-                                        disabled
-                                        className="bg-gray-50"
-                                    />
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        Email cannot be changed here. Contact support if needed.
-                                    </p>
-                                </div>
-
-                                <div className="flex gap-2">
-                                    <Button onClick={handleSave} disabled={saving}>
-                                        <Save className="w-4 h-4 mr-2" />
-                                        {saving ? 'Saving...' : 'Save Changes'}
-                                    </Button>
-                                    <Button variant="outline" onClick={handleCancel} disabled={saving}>
-                                        <X className="w-4 h-4 mr-2" />
-                                        Cancel
-                                    </Button>
-                                </div>
+                                )}
                             </div>
-                        ) : (
-                            // View Mode
-                            <div className="space-y-4">
-                                <div className="flex items-center space-x-3">
-                                    <User className="w-5 h-5 text-gray-400" />
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Full Name</p>
-                                        <p className="text-gray-900">{profile.full_name || 'Not set'}</p>
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
 
-                                <div className="flex items-center space-x-3">
-                                    <Mail className="w-5 h-5 text-gray-400" />
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Email</p>
-                                        <p className="text-gray-900">{profile.email}</p>
-                                    </div>
-                                </div>
+                    {/* Profile Information */}
+                    <div className="lg:col-span-2">
+                        <div className="glass-card rounded-xl p-6">
+                            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">📝 Personal Information</h3>
+                            <p className="text-gray-600 dark:text-gray-300 mb-6">
+                                {editing ? 'Update your personal details' : 'Your account information'}
+                            </p>
 
-                                <div className="flex items-center space-x-3">
-                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                    </svg>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Phone</p>
-                                        <p className="text-gray-900">{profile.phone || 'Not set'}</p>
+                            <div className="space-y-6">
+                                {editing ? (
+                                    // Edit Form
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <Label className="text-gray-900 dark:text-white mb-2 block"> Full Name</Label>
+                                                <Input
+                                                    value={formData.full_name}
+                                                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                                                    placeholder="Enter your full name"
+                                                    className="glass-effect border border-white/20 dark:border-gray-600/30 text-gray-900 dark:text-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-gray-900 dark:text-white mb-2 block"> Phone Number</Label>
+                                                <Input
+                                                    type="tel"
+                                                    value={formData.phone}
+                                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                    placeholder="Enter your phone number"
+                                                    className="glass-effect border border-white/20 dark:border-gray-600/30 text-gray-900 dark:text-white"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <Label className="text-gray-900 dark:text-white mb-2 block"> Email (Read-only)</Label>
+                                            <Input
+                                                value={profile.email}
+                                                disabled
+                                                className="glass-dark text-gray-900 dark:text-white"
+                                            />
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                📧 Email cannot be changed here. Contact support if needed.
+                                            </p>
+                                        </div>
+
+                                        <div className="flex gap-3 pt-4">
+                                            <button
+                                                onClick={handleSave}
+                                                disabled={saving}
+                                                className="glass-button bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-200 disabled:opacity-50 hover:scale-105 flex items-center space-x-2"
+                                            >
+                                                <Save className="w-4 h-4" />
+                                                <span>{saving ? ' Saving...' : ' Save Changes'}</span>
+                                            </button>
+                                            <button
+                                                onClick={handleCancel}
+                                                disabled={saving}
+                                                className="glass-button text-gray-700 dark:text-gray-300 px-6 py-2 rounded-lg hover:text-gray-900 dark:hover:text-white transition-all duration-200 disabled:opacity-50 hover:scale-105 flex items-center space-x-2"
+                                            >
+                                                <X className="w-4 h-4" />
+                                                <span> Cancel</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    // View Mode
+                                    <div className="space-y-4">
+                                        <div className="glass-effect rounded-lg p-4">
+                                            <div className="flex items-center space-x-3">
+                                                <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Full Name</p>
+                                                    <p className="text-gray-900 dark:text-white">{profile.full_name || 'Not set'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="glass-effect rounded-lg p-4">
+                                            <div className="flex items-center space-x-3">
+                                                <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Email</p>
+                                                    <p className="text-gray-900 dark:text-white">{profile.email}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="glass-effect rounded-lg p-4">
+                                            <div className="flex items-center space-x-3">
+                                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                </svg>
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Phone</p>
+                                                    <p className="text-gray-900 dark:text-white">{profile.phone || 'Not set'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
+                        </div>
+                    </div>
+                </div>
 
-            {/* Account Information */}
-            {!editing && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Account Information</CardTitle>
-                        <CardDescription>Account creation and security details</CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                {/* Account Information */}
+                {!editing && (
+                    <div className="glass-card rounded-xl p-6">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">🛡️ Account Information</h3>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">Account creation and security details</p>
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="flex items-center space-x-3">
-                                <Calendar className="w-5 h-5 text-gray-400" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">Member Since</p>
-                                    <p className="text-gray-900">{formatDate(profile.created_at)}</p>
+                            <div className="glass-effect rounded-lg p-4">
+                                <div className="flex items-center space-x-3">
+                                    <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Member Since</p>
+                                        <p className="text-gray-900 dark:text-white text-sm">{formatDate(profile.created_at)}</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-3">
-                                <Shield className="w-5 h-5 text-gray-400" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">Email Verified</p>
-                                    <p className="text-gray-900">
-                                        {profile.email_confirmed_at ? formatDate(profile.email_confirmed_at) : 'Not verified'}
-                                    </p>
+                            <div className="glass-effect rounded-lg p-4">
+                                <div className="flex items-center space-x-3">
+                                    <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Email Verified</p>
+                                        <p className="text-gray-900 dark:text-white text-sm">
+                                            {profile.email_confirmed_at ? formatDate(profile.email_confirmed_at) : 'Not verified'}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-3">
-                                <Calendar className="w-5 h-5 text-gray-400" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">Last Sign In</p>
-                                    <p className="text-gray-900">{formatDate(profile.last_sign_in_at)}</p>
+                            <div className="glass-effect rounded-lg p-4">
+                                <div className="flex items-center space-x-3">
+                                    <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Last Sign In</p>
+                                        <p className="text-gray-900 dark:text-white text-sm">{formatDate(profile.last_sign_in_at)}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
