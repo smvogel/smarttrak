@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import {LogoutButton} from "@/components/logout-button";
 import {UserDropdownMenu} from "@/components/UserDropdownMenu";
+import {ModeToggle} from "@/components/darkToggle";
 
 interface NavigationProps {
   user: User | null;
@@ -70,7 +71,29 @@ export default function MainNavigation({ user }: NavigationProps) {
             {/* Desktop Navigation */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-2">
-                {navigationItems.map((item) => (
+                {/* Render items up to and including Support */}
+                {navigationItems.slice(0, 5).map((item) => (
+                    <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 group ${
+                            isActive(item.href)
+                                ? 'glass-button bg-blue-600 dark:bg-blue-500 text-white shadow-lg'
+                                : 'glass-button text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                        }`}
+                    >
+                      <span className="group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
+                      <span>{item.name}</span>
+                    </Link>
+                ))}
+
+                {/* ModeToggle between Support and Profile */}
+                <div className="flex items-center">
+                  <ModeToggle />
+                </div>
+
+                {/* Render remaining items (Profile and Settings) */}
+                {navigationItems.slice(5).map((item) => (
                     <Link
                         key={item.name}
                         href={item.href}
@@ -153,7 +176,32 @@ export default function MainNavigation({ user }: NavigationProps) {
           {isMobileMenuOpen && (
               <div className="md:hidden">
                 <div className="glass-dark rounded-xl m-4 p-4 space-y-2 border border-opacity-20 border-white dark:border-gray-600">
-                  {navigationItems.map((item) => (
+                  {/* Render items up to and including Support */}
+                  {navigationItems.slice(0, 5).map((item) => (
+                      <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                              isActive(item.href)
+                                  ? 'glass-button bg-blue-600 dark:bg-blue-500 text-white shadow-lg'
+                                  : 'glass-button text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                          }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span>{item.icon}</span>
+                          <span>{item.name}</span>
+                        </div>
+                      </Link>
+                  ))}
+
+                  {/* ModeToggle in mobile menu */}
+                  <div className="flex justify-center py-2">
+                    <ModeToggle />
+                  </div>
+
+                  {/* Render remaining items (Profile and Settings) */}
+                  {navigationItems.slice(5).map((item) => (
                       <Link
                           key={item.name}
                           href={item.href}
@@ -212,35 +260,6 @@ export default function MainNavigation({ user }: NavigationProps) {
               </div>
           )}
         </div>
-
-        {/* Live Status Bar */}
-        <div className="glass-dark border-t border-opacity-20 border-white dark:border-gray-600 px-4 py-3">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
-              <div className="flex space-x-6">
-                <span className="glass-effect rounded-full px-3 py-1 flex items-center space-x-2 hover:scale-105 transition-transform duration-200">
-                  <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full"></div>
-                  <span><strong>15</strong> Total</span>
-                </span>
-                <span className="glass-effect rounded-full px-3 py-1 flex items-center space-x-2 hover:scale-105 transition-transform duration-200">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                  <span><strong>5</strong> In Progress</span>
-                </span>
-                <span className="glass-effect rounded-full px-3 py-1 flex items-center space-x-2 hover:scale-105 transition-transform duration-200">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span><strong>8</strong> Completed Today</span>
-                </span>
-              </div>
-              <div className="hidden sm:flex items-center space-x-2">
-                <span className="glass-effect rounded-full px-3 py-1 flex items-center space-x-2">
-                  <span>Last updated: 2 min ago</span>
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Floating decorative elements */}
         <div className="absolute top-0 left-1/4 w-16 h-16 glass-effect rounded-full opacity-10 floating-element pointer-events-none"></div>
         <div className="absolute top-0 right-1/3 w-12 h-12 glass-effect rounded-full opacity-5 floating-slow pointer-events-none"></div>
