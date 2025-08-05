@@ -14,7 +14,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-
 // ============================================================================
 // USER MANAGEMENT
 // ============================================================================
@@ -33,11 +32,11 @@ model User {
   supabaseId String? @unique
 
   // Relations
-  createdTasks    ServiceTask[] @relation("TaskCreatedBy")
-  assignedTasks   ServiceTask[] @relation("TaskAssignedTo")
-  statusUpdates   StatusUpdate[]
-  activityLogs    ActivityLog[]
-  printedLabels   PrintedLabel[]
+  createdTasks  ServiceTask[]  @relation("TaskCreatedBy")
+  assignedTasks ServiceTask[]  @relation("TaskAssignedTo")
+  statusUpdates StatusUpdate[]
+  activityLogs  ActivityLog[]
+  printedLabels PrintedLabel[]
 
   @@map("users")
 }
@@ -46,8 +45,7 @@ enum UserRole {
   ADMIN
   MANAGER
   TECHNICIAN
-  EMPLOYEE      // Basic access role for new signups
-  FRONT_DESK
+  EMPLOYEE // Basic access role for new signups
 }
 
 // ============================================================================
@@ -55,63 +53,63 @@ enum UserRole {
 // ============================================================================
 
 model ServiceTask {
-  id             String      @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Customer Information
-  customerName   String
-  email          String
-  phone          String
-  
+  customerName String
+  email        String
+  phone        String
+
   // Item Information
-  itemModel      String?
-  serialNumber   String?
-  itemCondition  String?     // "Good", "Fair", "Poor", etc.
-  
+  itemModel     String?
+  serialNumber  String?
+  itemCondition String? // "Good", "Fair", "Poor", etc.
+
   // Service Information
-  serviceType    ServiceType
-  customService  String?     // For "Other" service types
-  description    String?     // Initial problem description
-  notes          String?     // Internal notes
-  estimatedCost  Decimal?    @db.Decimal(10, 2)
-  actualCost     Decimal?    @db.Decimal(10, 2)
-  
+  serviceType   ServiceType
+  customService String? // For "Other" service types
+  description   String? // Initial problem description
+  notes         String? // Internal notes
+  estimatedCost Decimal?    @db.Decimal(10, 2)
+  actualCost    Decimal?    @db.Decimal(10, 2)
+
   // Status and Workflow
-  status         TaskStatus  @default(FUTURE)
-  priority       Priority    @default(NORMAL)
-  
+  status   TaskStatus @default(FUTURE)
+  priority Priority   @default(NORMAL)
+
   // Timestamps
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   estimatedCompletion DateTime?
   actualCompletion    DateTime?
-  
-  // Relations
-  createdBy      User        @relation("TaskCreatedBy", fields: [createdById], references: [id])
-  createdById    String
-  assignedTo     User?       @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
-  assignedToId   String?
-  
-  statusUpdates  StatusUpdate[]
-  activityLogs   ActivityLog[]
-  printedLabels  PrintedLabel[]
-  attachments    Attachment[]
 
-  @@map("service_tasks")
+  // Relations
+  createdBy    User    @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  createdById  String
+  assignedTo   User?   @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+  assignedToId String?
+
+  statusUpdates StatusUpdate[]
+  activityLogs  ActivityLog[]
+  printedLabels PrintedLabel[]
+  attachments   Attachment[]
+
   @@index([status])
   @@index([createdAt])
   @@index([customerName])
   @@index([email])
   @@index([phone])
+  @@map("service_tasks")
 }
 
 enum TaskStatus {
-  FUTURE      // Scheduled for future
-  IN_SHOP     // Item received, waiting to start
+  FUTURE // Scheduled for future
+  IN_SHOP // Item received, waiting to start
   IN_PROGRESS // Currently being worked on
-  COMPLETED   // Work finished, ready for pickup
-  CLOSED      // Customer picked up and paid
-  CANCELLED   // Service cancelled
-  ON_HOLD     // Waiting for parts/customer approval
+  COMPLETED // Work finished, ready for pickup
+  CLOSED // Customer picked up and paid
+  CANCELLED // Service cancelled
+  ON_HOLD // Waiting for parts/customer approval
 }
 
 enum ServiceType {
@@ -140,38 +138,38 @@ enum Priority {
 // ============================================================================
 
 model StatusUpdate {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   taskId      String
   fromStatus  TaskStatus?
   toStatus    TaskStatus
   notes       String?
-  updatedBy   User       @relation(fields: [updatedById], references: [id])
+  updatedBy   User        @relation(fields: [updatedById], references: [id])
   updatedById String
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime    @default(now())
 
-  task        ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
-  @@map("status_updates")
   @@index([taskId])
   @@index([createdAt])
+  @@map("status_updates")
 }
 
 model ActivityLog {
-  id          String      @id @default(uuid())
-  taskId      String
-  action      LogAction
-  description String
-  metadata    Json?       // Additional data as JSON
-  performedBy User        @relation(fields: [performedById], references: [id])
+  id            String    @id @default(uuid())
+  taskId        String
+  action        LogAction
+  description   String
+  metadata      Json? // Additional data as JSON
+  performedBy   User      @relation(fields: [performedById], references: [id])
   performedById String
-  createdAt   DateTime    @default(now())
+  createdAt     DateTime  @default(now())
 
-  task        ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
-  @@map("activity_logs")
   @@index([taskId])
   @@index([action])
   @@index([createdAt])
+  @@map("activity_logs")
 }
 
 enum LogAction {
@@ -194,21 +192,21 @@ enum LogAction {
 // ============================================================================
 
 model PrintedLabel {
-  id          String      @id @default(uuid())
+  id          String    @id @default(uuid())
   taskId      String
-  labelType   LabelType   @default(SERVICE_TAG)
-  printedBy   User        @relation(fields: [printedById], references: [id])
+  labelType   LabelType @default(SERVICE_TAG)
+  printedBy   User      @relation(fields: [printedById], references: [id])
   printedById String
   printerName String?
-  success     Boolean     @default(true)
+  success     Boolean   @default(true)
   errorMsg    String?
-  createdAt   DateTime    @default(now())
+  createdAt   DateTime  @default(now())
 
-  task        ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
-  @@map("printed_labels")
   @@index([taskId])
   @@index([createdAt])
+  @@map("printed_labels")
 }
 
 enum LabelType {
@@ -222,20 +220,20 @@ enum LabelType {
 // ============================================================================
 
 model Attachment {
-  id          String      @id @default(uuid())
-  taskId      String
-  filename    String
+  id           String   @id @default(uuid())
+  taskId       String
+  filename     String
   originalName String
-  mimeType    String
-  size        Int
-  url         String
-  uploadedBy  String      // User ID
-  createdAt   DateTime    @default(now())
+  mimeType     String
+  size         Int
+  url          String
+  uploadedBy   String // User ID
+  createdAt    DateTime @default(now())
 
-  task        ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task ServiceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
-  @@map("attachments")
   @@index([taskId])
+  @@map("attachments")
 }
 
 // ============================================================================
@@ -243,26 +241,26 @@ model Attachment {
 // ============================================================================
 
 model DailyMetrics {
-  id              String   @id @default(uuid())
-  date            DateTime @unique @db.Date
-  
+  id   String   @id @default(uuid())
+  date DateTime @unique @db.Date
+
   // Task counts
-  tasksCreated    Int      @default(0)
-  tasksCompleted  Int      @default(0)
-  tasksCancelled  Int      @default(0)
-  
+  tasksCreated   Int @default(0)
+  tasksCompleted Int @default(0)
+  tasksCancelled Int @default(0)
+
   // Financial metrics
-  totalRevenue    Decimal? @db.Decimal(10, 2)
-  avgServiceCost  Decimal? @db.Decimal(10, 2)
-  
+  totalRevenue   Decimal? @db.Decimal(10, 2)
+  avgServiceCost Decimal? @db.Decimal(10, 2)
+
   // Performance metrics
   avgTurnaroundHours Float?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 
-  @@map("daily_metrics")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([date])
+  @@map("daily_metrics")
 }
 
 // ============================================================================
@@ -270,11 +268,11 @@ model DailyMetrics {
 // ============================================================================
 
 model SystemSettings {
-  id    String @id @default(uuid())
-  key   String @unique
+  id    String      @id @default(uuid())
+  key   String      @unique
   value String
   type  SettingType @default(STRING)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -293,30 +291,30 @@ enum SettingType {
 // ============================================================================
 
 model Customer {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  phone        String
-  address      String?
-  city         String?
-  state        String?
-  zipCode      String?
-  
+  id      String  @id @default(uuid())
+  name    String
+  email   String  @unique
+  phone   String
+  address String?
+  city    String?
+  state   String?
+  zipCode String?
+
   // Preferences
-  notifications Boolean  @default(true)
+  notifications    Boolean @default(true)
   preferredContact String? // "email", "sms", "phone"
-  
+
   // Timestamps
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  lastService  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastService DateTime?
 
   // Relations - you can link this to ServiceTask later
   // serviceTasks ServiceTask[]
 
-  @@map("customers")
   @@index([email])
   @@index([phone])
+  @@map("customers")
 }
 
 // ============================================================================
@@ -324,14 +322,14 @@ model Customer {
 // ============================================================================
 
 model NotificationTemplate {
-  id          String           @id @default(uuid())
-  name        String           @unique
-  type        NotificationType
-  subject     String?          // For email
-  message     String
-  isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id        String           @id @default(uuid())
+  name      String           @unique
+  type      NotificationType
+  subject   String? // For email
+  message   String
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   @@map("notification_templates")
 }
@@ -343,20 +341,20 @@ enum NotificationType {
 }
 
 model SentNotification {
-  id         String           @id @default(uuid())
-  taskId     String?
-  type       NotificationType
-  recipient  String           // Email or phone number
-  subject    String?
-  message    String
-  status     NotificationStatus @default(PENDING)
-  sentAt     DateTime?
-  createdAt  DateTime         @default(now())
+  id        String             @id @default(uuid())
+  taskId    String?
+  type      NotificationType
+  recipient String // Email or phone number
+  subject   String?
+  message   String
+  status    NotificationStatus @default(PENDING)
+  sentAt    DateTime?
+  createdAt DateTime           @default(now())
 
-  @@map("sent_notifications")
   @@index([taskId])
   @@index([createdAt])
   @@index([status])
+  @@map("sent_notifications")
 }
 
 enum NotificationStatus {
